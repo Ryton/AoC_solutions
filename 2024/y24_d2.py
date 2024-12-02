@@ -65,7 +65,7 @@ if __name__ == "__main__":
     print(answer_a)
     part = "b"
     print(f"personal answer {part}:{answer_b}")
-    submit(answer_b+1)
+    submit(answer_b)
 
 
     print("CalcuationTime:")
