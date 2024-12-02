@@ -1,10 +1,9 @@
 # pip install advent-of-code-data
 #from aocd.models import Puzzle
 year= 2024
-day = 1
+day = 2
 
 from aocd import submit, get_data
-from itertools import count
 import numpy as np
 import pandas as pd
 import os
@@ -29,14 +28,13 @@ def calc_a(reports,BOOL_partb=False):
             #print("part A accepted:", rapport, d)
         else:
             ok =False
-            droppedlast = -1
             if partB:
                 for k in range(len(rapport)):
                     shorterrapport=np.delete(rapport,k)
                     shorterd = np.diff(shorterrapport)
                     if accepted(shorterd):
                         ok=True
-                        droppedlast = k
+                        break
                 if ok:
                     sb +=1 
         if not BOOL_partb:  
