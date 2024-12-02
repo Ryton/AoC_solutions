@@ -18,13 +18,13 @@ def accepted(diffarray):
     return ((np.all(-3<=diffarray) and np.all(diffarray<=-1))  or (np.all(3>=diffarray) and np.all(diffarray>=1)))
 
 def calc_a(reports,BOOL_partb=False):
+    s,sb=0,0
     for i in reports.index:
         txtrapport =reports.iloc[i].values[0]
         rapport=np.array(txtrapport.split(" ")).astype(int)
         d = np.diff(rapport)
         if accepted(d):
             s+= 1 # a
-            sb +=1 # b
             #print("part A accepted:", rapport, d)
         else:
             ok =False
@@ -40,7 +40,7 @@ def calc_a(reports,BOOL_partb=False):
         if not BOOL_partb:  
             return s
         else:
-            return sb
+            return s+ sb
 
 def calc_b(reports):    
     return calc_a(reports,BOOL_partb=True)
