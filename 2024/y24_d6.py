@@ -2,7 +2,9 @@
 #from aocd.models import Puzzle
 year= 2024
 day = 6
-EVALLENGTH = 99999
+EVALLENGTH = 6161  # = lowest acceptable bound in my example 
+            # 20999 ## less conservative bound 1 min
+            # 99999 very conservative bound, 3 mins
 from aocd import submit, get_data
 import numpy as np
 import pandas as pd
@@ -63,14 +65,32 @@ def calc_a(grid):
     path = []
     path.append(currpos)
     #print(currpos,currdirindex)
-    for i in range(EVALLENGTH):
+    BOOL_activate_loopdetection =False # for now, slower, work in progress
 
-        [currpos,currdirindex] = move_one(grid, pos=currpos, dirindex = currdirindex)
+    for i in range(EVALLENGTH):
+            
+        [nextpos,nextdirindex] = move_one(grid, pos=currpos, dirindex = currdirindex)
+        if BOOL_activate_loopdetection:
+            if nextpos in path[:-1]: #already visisted?
+                reverse_path = copy.deepcopy(path)
+                reverse_path.reverse()
+                reverse_index= reverse_path.index(nextpos) # find last occurence
+                try:
+                    if reverse_path[reverse_index+1] == currpos:
+                        break # alrady seen
+                except:
+                    pass
+        [currpos,currdirindex] = [nextpos,nextdirindex]
+
         if currdirindex==-1: # goes outside bound.
             break
+        
+     
         path.append((currpos))
         #print(f"move {i}:{currpos},direction{currdirindex}")
         grid[currpos]='X' # been there.
+        
+
 
     #print(grid)
     #print(set(path))
@@ -81,10 +101,10 @@ def calc_a(grid):
 
 def calc_b(stargrid,normalpath):
     #naive method.
-    print(np.shape(stargrid))
+    #print(np.shape(stargrid))
     startpos = np.where(stargrid=="^")
     n_loops = 0
-    
+    maxlength =0
     #with alive_bar(len(normalpath)) as bar:  # your expected total
         
     #for n,(x_obst,y_obst) in enumerate(normalpath):
@@ -100,7 +120,9 @@ def calc_b(stargrid,normalpath):
         #print(f"{n/len(normalpath)*100:2.2f}%",)
         if len(path) > EVALLENGTH-100 :
             n_loops +=1
-
+        else:
+            maxlength = max(maxlength,len(path))
+    print(f"max length of cycle in my example: {maxlength}")
     return n_loops
 
 if __name__ == "__main__":
@@ -140,9 +162,11 @@ if __name__ == "__main__":
     t_a = toc()
     
     tic()
+    print("calculating answer b (slow!):")
     answer_b = calc_b(startgrid,list(set(path)))
     t_b = toc()
-    print(answer_b)
+    
+    print(f"answer_b: {answer_b}")
     # part = "a"
     # print(f"personal answer {part}:{answer_a}")
     # print(answer_a)
