@@ -11,8 +11,6 @@ from helperfunctions import *
 import copy 
 from tqdm import tqdm
 
-from functools import lru_cache
-
 def  parse(data):
     #print(np.shape(data))
     grid=np.array([[l for l in line] for line in data.split()])
