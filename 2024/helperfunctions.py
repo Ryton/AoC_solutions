@@ -1,5 +1,16 @@
 # helperfunctions for AoC . Some found online , other selfdefined.
 
+## all imports for main file.
+from aocd import submit, get_data
+from itertools import count
+import numpy as np
+import pandas as pd
+import os
+from collections import deque
+import copy
+
+
+
 import time
 
 def TicTocGenerator():

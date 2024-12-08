@@ -1,14 +1,16 @@
-
-from helperfunctions import * ## all related imports done there.
-
 year= 2024
-day = 1 # change this!
+day = 12345 # change this!
 inputtype  = "D" # D(emo) or P(ersonal)
-submit = "none" #"a" , "b", "none"
-##### helperfuntions for this day
 
-################################################### begin of today's solution ###################################################
-def load_data(inputtype="D"): #["D","P"]
+
+from helperfunctions import *
+
+##### helperfuntions
+
+
+### recurring functoins
+def load_data(inputtype=inputtype): #"D","P"
+    
     demodata = """190: 10 19
                     3267: 81 40 27
                     83: 17 5
@@ -29,19 +31,21 @@ def load_data(inputtype="D"): #["D","P"]
     return data
 
 def  parse(data=0):
-
     return 0
 
 def calc_a(a=0, b=0):
     
-    return 0 # answer a 
+    return 0 # answer:     #12839601725776     too low 
+    
+
+
+    
+
 
 def calc_b():
+    return 0
 
-    return 0 # answer b
-################################################### end of solution ###################################################
-
-## main script when file is run as script. 
+## main script when file is run as script
 if __name__ == "__main__":
     print(f"**** Day {day} *"+ "*"*14)
     # preprocessing
@@ -62,13 +66,11 @@ if __name__ == "__main__":
 
     print("*** Demo Input *"+ "*"*14 if inputtype == "D" else "*** Personal input *"+ "*"*14)
     print(f"* Answer {part}: {answer_a}")
-    if submit == "a":
-        submit(answer_a)
-
+    
     part = "b"
     print(f"* Answer {part}: {answer_b}")
-    if submit == "b":
-        submit(answer_b)
+    #submit(answer_b)
+
 
     print("* CalcuationTime:   ")
     print(f"* Day {day} a: {t_a:2.3f}s")
