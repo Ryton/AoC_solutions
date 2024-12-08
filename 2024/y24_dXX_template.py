@@ -77,7 +77,7 @@ if __name__ == "__main__":
     part = "a"
 
     print("*** Demo Input *"+ "*"*14 if inputtype == "D" else "*** Personal input *"+ "*"*14)
-    print(f"* answer {part}: {answer_a}")
+    print(f"* Answer {part}: {answer_a}")
     
     part = "b"
     print(f"* Answer {part}: {answer_b}")

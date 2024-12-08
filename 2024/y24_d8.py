@@ -136,6 +136,8 @@ def calc_b(df):
 
 ## main script when file is run as script
 if __name__ == "__main__":
+
+    
     print(f"**** Day {day} *"+ "*"*14)
     # preprocessing
     data =  load_data(inputtype=inputtype) #"D","P"
