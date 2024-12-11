@@ -67,7 +67,7 @@ def calc_a(items,items_and_gaps):
     
 
 
-def calc_b(length_and_itemid):
+def slow_calc_b(length_and_itemid):
     
     immutable = copy.deepcopy(length_and_itemid)
     nel = len(length_and_itemid)
@@ -77,7 +77,8 @@ def calc_b(length_and_itemid):
     r_counter = np.arange(nblocks,-1,-1)
     #print(r_counter)
     deltapos = 0
-    for n in r_counter: # evaluate each block exactly once.
+    #for n in r_counter: # evaluate each block exactly once.
+    for n in tqdm (r_counter, desc="To go..."):
 
         #print(" evaluating block #",n)
         possibleloc = copy.deepcopy(length_and_itemid)
@@ -117,9 +118,63 @@ def calc_b(length_and_itemid):
         cumsum += n*i
     return cumsum
 
+
+
+from tqdm import tqdm
+ 
+
+def calc_b(length_and_itemid): ## alternative solution, NOK!
+    blocksizes = np.array([item[0] for item in  length_and_itemid])
+    blocktypes = np.array([item[1] for item in  length_and_itemid])
+    blocknrs = np.unique(blocktypes)
+    #print(blocknrs)
+    nblocks = len(blocknrs) -1
+    r_counter = np.arange(nblocks-1,0,-1)
+    #print(r_counter)
+    deltapos = 0
+    
+    for n in tqdm (r_counter, desc="To go..."):
+
+        try:
+            currloc = np.argwhere(blocktypes==n)[0][0]
+            #print (currloc)
+            
+            #currloc = np.argwhere(blocktypes ==n)[0] # will be just one.
+            reqsize = blocksizes[currloc]
+            gaps = np.argwhere(blocktypes==-1)
+            bigspaces = np.argwhere(blocksizes> reqsize)
+            spaces = np.union1d(gaps, bigspaces)
+            
+            if len(spaces)>0:
+                to_loc = spaces[0] # take first
+                
+                if to_loc< currloc:
+                    # then move.
+                    remaining = blocksizes[to_loc]- reqsize 
+                    #A) replace old row with a gap
+                    blocktypes[currloc] = -1    
+                    blocksizes[currloc] = reqsize    
+
+                    blocktypes[to_loc] = n    
+                    blocksizes[to_loc] = reqsize    
+                    
+                    if remaining>0:
+
+                        blocktypes = np.insert(blocktypes, to_loc+1, -1    )
+                        blocksizes = np.insert(blocksizes,to_loc+1, remaining)
+                        #A) replace old row with a gap
+        except:
+            print("failed for item ", n)
+        sorted_array = list(chain.from_iterable([blocksizes[n]*[int(blocktypes[n])] if blocktypes[n]> -1  else [0]*blocksizes[n] for n in range(len(blocktypes))]))
+        #print("sorted array ", sorted_array)
+
+    cumsum = 0
+    for n,i in enumerate(sorted_array):
+        cumsum += n*i
+    return cumsum
+
 ## main script when file is run as script
 if __name__ == "__main__":
-    
     print(f"**** Day {day} *"+ "*"*14)
     # preprocessing
     data =  load_data(inputtype=inputtype) #"D","P"
@@ -137,7 +192,7 @@ if __name__ == "__main__":
     print(f"* Answer {part}: {answer_a}")
 
     tic()
-    answer_b = calc_b(length_and_itemid)
+    answer_b = slow_calc_b(length_and_itemid)
     t_b = toc()
 
     
