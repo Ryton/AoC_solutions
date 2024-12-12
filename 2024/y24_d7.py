@@ -148,12 +148,15 @@ def calc_a(answer_to_terms, inputoperators):
                 result = localdeque[0]  # put first element in
                 #print(operationslist)
                 for n,o in enumerate(operationslist):
-                    result = o(result,localdeque[n+1]) # sum or prod
+                    result = o(result,localdeque[n+1]) # assign operator to the current result and next element in line.
+                    if result >  answer:
+                        break # stop this branch
                 #print(result) 
 
                 if answer == result:
-                    solved = True
-                    break
+                    solved = True 
+                    break # stop all calculation for this number.!
+            
             if solved:
                 tot += answer
                 
