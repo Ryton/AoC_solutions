@@ -2,7 +2,7 @@
 #from aocd.models import Puzzle
 year= 2024
 day = 6
-EVALLENGTH = 6161  # = lowest acceptable bound in my example 
+EVALLENGTH = 6161+5  # = lowest acceptable bound in my example 
             # 20999 ## less conservative bound 1 min
             # 99999 very conservative bound, 3 mins
 from aocd import submit, get_data
@@ -55,7 +55,7 @@ def move_one(grid, pos=(0,0), dirindex = 2):
         nextpos= (pos[0]+step[0],pos[1]+step[1] )  
         return [nextpos,dirindex]
 
-def calc_a(grid):
+def calc_a(grid,BOOL_activate_loopdetection =False):
     #print(np.shape(grid))
     findpos = np.where(grid=="^")
 
@@ -65,28 +65,26 @@ def calc_a(grid):
     path = []
     path.append(currpos)
     #print(currpos,currdirindex)
-    BOOL_activate_loopdetection =False # for now, slower, work in progress
-
+    
+    pathset= set()
     for i in range(EVALLENGTH):
             
         [nextpos,nextdirindex] = move_one(grid, pos=currpos, dirindex = currdirindex)
+        
         if BOOL_activate_loopdetection:
-            if nextpos in path[:-1]: #already visisted?
-                reverse_path = copy.deepcopy(path)
-                reverse_path.reverse()
-                reverse_index= reverse_path.index(nextpos) # find last occurence
-                try:
-                    if reverse_path[reverse_index+1] == currpos:
-                        break # alrady seen
-                except:
-                    pass
+            if (nextpos,nextdirindex) in pathset:
+                return [] #loopie
+            else:
+                pathset.add((nextpos,nextdirindex))
         [currpos,currdirindex] = [nextpos,nextdirindex]
 
         if currdirindex==-1: # goes outside bound.
             break
         
-     
-        path.append((currpos))
+            
+        path.append(currpos)
+        
+
         #print(f"move {i}:{currpos},direction{currdirindex}")
         grid[currpos]='X' # been there.
         
@@ -99,7 +97,7 @@ def calc_a(grid):
     
 
 
-def calc_b(stargrid,normalpath):
+def calc_b(stargrid,normalpath,BOOL_activate_loopdetection=False):
     #naive method.
     #print(np.shape(stargrid))
     startpos = np.where(stargrid=="^")
@@ -115,14 +113,18 @@ def calc_b(stargrid,normalpath):
             #print(f" pos of new obj ({x_obst},{y_obst})")
             inputgrid[x_obst,y_obst]="O" #add object in grid
             #print(inputgrid)
-        path = calc_a(inputgrid)
+        path = calc_a(inputgrid,BOOL_activate_loopdetection =BOOL_activate_loopdetection) # # for now, slower, work in progress)
         #print(f"progress: val {n}/{len(normalpath)}: Eval obst at ({x_obst},{y_obst}):Answ so far:{n_loops}).pathlength {len(path)}")
         #print(f"{n/len(normalpath)*100:2.2f}%",)
-        if len(path) > EVALLENGTH-100 :
-            n_loops +=1
+        if BOOL_activate_loopdetection:
+            if len(path)==0:
+                n_loops +=1 
         else:
-            maxlength = max(maxlength,len(path))
-    print(f"max length of cycle in my example: {maxlength}")
+            if len(path) >= EVALLENGTH-1 :
+                n_loops +=1
+            else:
+                maxlength = max(maxlength,len(path))
+            print(f"max length of cycle in my example: {maxlength}")
     return n_loops
 
 if __name__ == "__main__":
@@ -163,7 +165,7 @@ if __name__ == "__main__":
     
     tic()
     print("calculating answer b (slow!):")
-    answer_b = calc_b(startgrid,list(set(path)))
+    answer_b = calc_b(startgrid,list(set(path)),BOOL_activate_loopdetection = True)
     t_b = toc()
     
     print(f"answer_b: {answer_b}")
