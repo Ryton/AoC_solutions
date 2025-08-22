@@ -1,15 +1,20 @@
-
+## dependencies
 from helperfunctions import * ## all related imports done there.
+from collections import Counter
+import sys
+import logging
+from logging.handlers import SysLogHandler
 
-year= 2024
-day = 1 # change this!
+import logging
+
+
+
+##### input 
 inputtype  = "D" # D(emo) or P(ersonal)
-submit = "none" #"a" , "b", "none"
-##### helperfuntions for this day
+runthese = ["a" ] #["a","b"]
 
-################################################### begin of today's solution ###################################################
-def load_data(inputtype="D"): #["D","P"]
-    demodata = """190: 10 19
+submit = "none" #"a" , "b", "none"
+demodata = """190: 10 19
                     3267: 81 40 27
                     83: 17 5
                     156: 15 6
@@ -18,6 +23,29 @@ def load_data(inputtype="D"): #["D","P"]
                     192: 17 8 14
                     21037: 9 7 18 13
                     292: 11 6 16 20"""
+##### end input 
+
+# get year and day
+fname =  os.path.basename(__file__)
+print(fname)
+yd_ =fname.split("_")
+year = 2000+ int(yd_[0][1:])
+print(yd_[1])
+try: #try to get from filename
+    yd_ =fname.split("_")
+    year = 2000+ int(yd_[0][1:])
+    day = int(yd_[1][1:-3]) # drop .py
+except:
+    year = 2024
+    day = 1 # change this!
+
+
+
+##### helperfuntions for this day
+
+################################################### begin of today's solution ###################################################
+def load_data(inputtype="D"): #["D","P"]
+    
 
     if inputtype =="D":
         data = demodata # personaldata
@@ -43,24 +71,51 @@ def calc_b():
 
 ## main script when file is run as script. 
 if __name__ == "__main__":
+    # Create a logger
+    logger = logging.getLogger(os.path.basename(__file__[:-3]))
+    # Create a console handler and set the level to debug
+    console_handler_stdout = logging.StreamHandler()
+    console_handler_stdout.setLevel(logging.DEBUG)
+    filehandler = logging.FileHandler("debug.log")
+    #filehandler.setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG, handlers = [console_handler_stdout,filehandler])
+
+
+    logger.warning('Start')
+
     print(f"**** Day {day} *"+ "*"*14)
     # preprocessing
     data =  load_data(inputtype=inputtype) #"D","P"
     parsedinput = parse(data)
     
-    # timed exeution
-    tic()
-    answer_a= calc_a(parsedinput)
-    t_a = toc()
+    if "a" in runthese:
+        # timed exeution
+        tic()
+        answer_a= calc_a(parsedinput)
+        t_a = toc()
+    else:
+        answer_a = 0
+        t_a = 0
 
-    tic()
-    answer_b = calc_b()
-    t_b = toc()
+    if "b" in runthese:
+        tic()
+        answer_b = calc_b()
+        t_b = toc()
+    else:
+        answer_b = 0
+        t_b = 0
+
+    if inputtype == "D":
+        coderuntype = "*** Demo Input *"+ "*"*14  
+    elif inputtype == "P": 
+        coderuntype = "*** Personal input *"+ "*"*14
+    else: #other tests
+        coderuntype = "*** TESTING input *"+ "*"*14
+
 
     #printout
+    print(coderuntype)
     part = "a"
-
-    print("*** Demo Input *"+ "*"*14 if inputtype == "D" else "*** Personal input *"+ "*"*14)
     print(f"* Answer {part}: {answer_a}")
     if submit == "a":
         submit(answer_a)
@@ -74,5 +129,6 @@ if __name__ == "__main__":
     print(f"* Day {day} a: {t_a:2.3f}s")
     print(f"* Day {day} b: {t_b:2.3f}s")
     print("*"*30)
+    logger.info('Finished')
 
 

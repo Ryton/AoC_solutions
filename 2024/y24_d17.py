@@ -1,6 +1,11 @@
 ##### input 
+import sys
+print(sys.maxsize)
+
 inputtype  = "P" # D(emo) or P(ersonal)
 submit = "none" #"a" , "b", "none"
+runthese = ["a","b"] #["a","b"]
+
 demodata = """Register A: 729
 Register B: 0
 Register C: 0
@@ -39,7 +44,6 @@ except:
 ################################################### begin of today's solution ###################################################
 def load_data(inputtype="D"): #["D","P"]
     
-
     if inputtype =="D":
         data = demodata # personaldata
 
@@ -69,9 +73,13 @@ def load_data(inputtype="D"): #["D","P"]
         elif 0:
             prog = [2,4,1,1,7,5,4,0,0,3,1,6,5,5,3,0]
             registers= [30899381,0,0] 
-        elif 1:
+        elif 0:
             registers = [117440, 0,0]
             prog = [0,3,5,4,3,0]
+        elif 1: ## testing my solution for B
+            #9223372036854775807  
+            registers = [164279024971453,0,0]
+            prog = [2,4,1,1,7,5,1,5,4,0,5,5,0,3,3,0]
 
     else:
         #personaldata = get_data(year= year,day = day)
@@ -128,27 +136,53 @@ def calc_a(reg, prog,max_out=99):
     return output # answer a 
 
 
-
-def calc_b(reg, prog):
-    FULL_GOAL = copy.copy(prog)
-    MAXNR = int(1E9)
-    N = 99    
-    for n in range(MAXNR):
-        if np.remainder(n,20000)==0:
-            print("it #",n)
-        vals = calc_a([n,reg[1],reg[2]], prog,max_out=N)
-        if np.all(vals==FULL_GOAL):
-            return n
-
-        else:
-            continue
-                
+def check_digit_n(full_n, GOAL,digit_n =1):
     
+    for n in range(8):
+        reg = [full_n+n, 0,0]
+        values = calc_a(reg, GOAL,max_out =99)
+        tocheck = GOAL[-digit_n:]
+        
+        try:
+            GOAL[digit_n+1]
+            if np.all(values == GOAL):
+                print("DONE",full_n+n)            
+                return full_n+n
+        except:
+            print("branch exhausted => moving on!")
+            return False
+        #print("target_value", GOAL[-digit_n])
+    
+        if len(values)== abs(digit_n+1):
+            if values[digit_n+1] == GOAL[digit_n+1]:
+                
+                full_n = (full_n+n)<< 3            
+                print(values, "OK; next ", full_n , "next digit",digit_n-1)
+                for n in range(8):
+                    reg = [full_n+n, 0,0]
+                    
+                    if val:= check_digit_n(full_n+n, GOAL,digit_n=digit_n-1):
+
+                        return val
+                    else: 
+                        continue
+                    # else continue.
+            else: 
+                continue
+
+        else: 
+                return False
+
+def calc_b(reg,FULLGOAL):
+    print("B", FULLGOAL)
+    n=0 ## went well till last digit... n = 164279024971432 => fails
+    final_val = check_digit_n(n, FULLGOAL,digit_n =-2) 
+    #n = 1314232199771560
+    #final_val = check_digit_n(n, FULLGOAL,digit_n =-2) 
+            
+    return final_val
     
 ################################################### end of solution ###################################################
-
-
-
 
 def adv(reg,output,pointer,operand,writeto = 0):
     nomi  = int(reg[0])
@@ -205,22 +239,39 @@ if __name__ == "__main__":
     print(data)
     parsedinput = parse(data)
     
-    # timed exeution
-    tic()
+
+    if "a" in runthese:
+        # timed exeution
+        tic()
 
 
-    answer_a_ints= calc_a(*data)
-    answer_a =",".join([str(o) for o in answer_a_ints])
-    t_a = toc()
-
-    tic()
-    answer_b = calc_b(*data)
-    t_b = toc()
+        answer_a_ints= calc_a(*data)
+        answer_a =",".join([str(o) for o in answer_a_ints])
+        t_a = toc()
+    else:
+        t_a = 0
+        answer_a = 0
+    
+    if "b" in runthese:
+        tic()
+        answer_b = calc_b(*data)
+        t_b = toc()
+    else:
+        t_b = 0
+        answer_b = 0
 
     #printout
     part = "a"
+    
+    if inputtype == "D":
+        coderuntype = "*** Demo Input *"+ "*"*14  
+    elif inputtype == "P": 
+        coderuntype = "*** Personal input *"+ "*"*14
+    else: #other tests
+        coderuntype = "*** TESTING input *"+ "*"*14
+    
+    print(coderuntype)
 
-    print("*** Demo Input *"+ "*"*14 if inputtype == "D" else "*** Personal input *"+ "*"*14)
     print(f"* Answer {part}: {answer_a}")
     if submit == "a":
         submit(answer_a)
