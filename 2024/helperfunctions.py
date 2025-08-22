@@ -8,7 +8,7 @@ import pandas as pd
 import os
 from collections import deque
 import copy
-
+from collections import Counter
 import time
 
 def TicTocGenerator():
@@ -81,7 +81,7 @@ class Map(dict):
 
 
 
-def floodfill(grid,start=(0,0),obstructed_value = 9999):
+def floodfill(grid,start=(0,0),obstructed_value = 9999,wallvalue = -1):
     
     gridsize = np.shape(grid)+ np.array([2,2]) #with walls.
     nrows, ncols = np.shape(grid)
@@ -128,12 +128,27 @@ def floodfill(grid,start=(0,0),obstructed_value = 9999):
                 a,b = loc
                 
                 #grid3x3 = expandgrid[a-1:+a+1,b-1:b+1] #also diag ok
-                grid_cross = [expandgrid[a-1,b],expandgrid[a+1,b],expandgrid[a,b-1],expandgrid[a,b+1]]
+                try:
+                    grid_cross = [expandgrid[a-1,b],expandgrid[a+1,b],expandgrid[a,b-1],expandgrid[a,b+1]]
+                except: 
+                    grid_cross = [obstructed_value]
+                    print("grid cross generation failed for {a},{b}, with expanded grid size {np.shape(expandgrid)}")
+
+                """ ## too slow
+                    grid_cross = []
+                    for thesetuples  in [[a-1,b],[a+1,b],[a,b-1],[a,b+1]]:
+                    try:
+                        grid_cross.append(expandgrid[thesetuples])
+                    except:
+                        print("grid cross generation failed for {a},{b}")
+
+                """
                 minval = np.min(grid_cross)
+
                 
                 isedge = (a ==0 or a>nrows or b ==0 or b>ncols)
                 if not(isedge):
-                    iswall = (grid[a-1,b-1]<0)
+                    iswall = (grid[a-1,b-1] ==wallvalue)
                 else:
                     iswall = isedge 
 
@@ -144,7 +159,7 @@ def floodfill(grid,start=(0,0),obstructed_value = 9999):
                         a,b = adj
                         isedge = (a ==0 or a>nrows or b ==0 or b>ncols)
                         if not(isedge):
-                            iswall = (grid[a-1,b-1])<0
+                            iswall = ( (grid[a-1,b-1])==wallvalue)
                         else:
                             iswall = isedge
                             
@@ -163,3 +178,31 @@ def floodfill(grid,start=(0,0),obstructed_value = 9999):
             next_list = [] 
     #print(expandgrid)
     return expandgrid
+
+
+
+from collections import deque
+
+import numpy as np
+from collections import deque
+
+def bfs_shortest_path_np(grid: np.ndarray, start: tuple, goal: tuple):
+    rows, cols = grid.shape
+    visited = np.zeros_like(grid, dtype=bool)
+    queue = deque([(start, [start])])  # (current_position, path_so_far)
+
+    directions = [(-1,0), (1,0), (0,-1), (0,1)]  # Up, Down, Left, Right
+
+    while queue:
+        (x, y), path = queue.popleft()
+        if (x, y) == goal:
+            return path
+
+        for dx, dy in directions:
+            nx, ny = x + dx, y + dy
+            if 0 <= nx < rows and 0 <= ny < cols:
+                if not visited[nx, ny] and grid[nx, ny] == 0:  # 0 = walkable
+                    visited[nx, ny] = True
+                    queue.append(((nx, ny), path + [(nx, ny)]))
+
+    return None  # No path found
